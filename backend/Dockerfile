@@ -16,11 +16,12 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libasound2 \
     --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf "$(which chromium || which chromium-browser)" /usr/local/bin/chromium-puppet
 
 # Tell Puppeteer to use system Chromium, skip bundled download
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/local/bin/chromium-puppet
 
 WORKDIR /app
 COPY package*.json ./
