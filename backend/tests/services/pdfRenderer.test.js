@@ -5,7 +5,7 @@ const competitors = require('../fixtures/competitors.json');
 jest.mock('puppeteer', () => ({
   launch: jest.fn().mockResolvedValue({
     newPage: jest.fn().mockResolvedValue({
-      setContent: jest.fn(),
+      setContent: jest.fn().mockResolvedValue(undefined),
       pdf: jest.fn().mockResolvedValue(Buffer.from('%PDF-test')),
       close: jest.fn(),
     }),

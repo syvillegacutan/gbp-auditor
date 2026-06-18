@@ -21,4 +21,11 @@ describe('POST /pdf', () => {
     const res = await request(app).post('/pdf').send({ clientProfile });
     expect(res.status).toBe(400);
   });
+
+  it('returns 400 when competitors is missing', async () => {
+    const res = await request(app)
+      .post('/pdf')
+      .send({ auditResult, clientProfile });
+    expect(res.status).toBe(400);
+  });
 });
