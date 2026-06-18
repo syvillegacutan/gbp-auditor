@@ -1,5 +1,4 @@
-// Update this URL after Railway deployment
-const BACKEND_URL = 'https://your-railway-app.railway.app';
+const BACKEND_URL = 'https://gbp-auditor-production.up.railway.app';
 
 async function apiPost(path, body) {
   const res = await fetch(`${BACKEND_URL}${path}`, {
