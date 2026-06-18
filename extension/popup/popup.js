@@ -308,22 +308,13 @@ async function generateReport() {
   }
 }
 
-async function downloadPdf() {
+function downloadPdf() {
   if (!state.pdfData) return;
   // Decode base64 → bytes → Blob (preserves UTF-8 characters like ✓/✗)
   const bytes = Uint8Array.from(atob(state.pdfData.base64), c => c.charCodeAt(0));
   const blob = new Blob([bytes], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const tab = await chrome.tabs.create({ url });
-  // Inject print trigger once the tab finishes loading
-  chrome.tabs.onUpdated.addListener(function trigger(tabId, info) {
-    if (tabId === tab.id && info.status === 'complete') {
-      chrome.tabs.onUpdated.removeListener(trigger);
-      setTimeout(() => {
-        chrome.scripting.executeScript({ target: { tabId: tab.id }, func: () => window.print() });
-      }, 600);
-    }
-  });
+  chrome.tabs.create({ url });
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
