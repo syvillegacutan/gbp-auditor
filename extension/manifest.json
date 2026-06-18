@@ -3,7 +3,7 @@
   "name": "GBP Auditor",
   "version": "1.0.0",
   "description": "Internal agency tool — Google Business Profile audit and competitor gap analysis",
-  "permissions": ["activeTab", "storage", "tabs"],
+  "permissions": ["activeTab", "storage", "tabs", "scripting"],
   "host_permissions": ["https://www.google.com/maps/*"],
   "action": {
     "default_popup": "popup/popup.html",
