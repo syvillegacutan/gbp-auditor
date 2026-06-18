@@ -4,13 +4,13 @@ const { renderReport } = require('../services/pdfRenderer');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-  const { auditResult, clientProfile, competitors, baseline } = req.body;
+  const { auditResult, clientProfile, competitors, baseline, heatmap } = req.body;
   if (!auditResult || !clientProfile || !competitors) {
     return res.status(400).json({ error: 'auditResult, clientProfile, and competitors are required' });
   }
 
   try {
-    const html = await renderReport({ auditResult, clientProfile, competitors, baseline: baseline || null });
+    const html = await renderReport({ auditResult, clientProfile, competitors, baseline: baseline || null, heatmap: heatmap || null });
     const filename = `gbp-audit-${clientProfile.name.replace(/\s+/g, '-')}.html`;
     res.json({ html: Buffer.from(html).toString('base64'), filename });
   } catch (err) {

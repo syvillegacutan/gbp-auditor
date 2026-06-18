@@ -146,7 +146,42 @@ function buildReviewGaps(gaps) {
     </div>`).join('');
 }
 
-async function renderReport({ auditResult, clientProfile, competitors, baseline }) {
+function heatmapRankClass(rank) {
+  if (!rank) return 'hm-none';
+  if (rank <= 3) return 'hm-1';
+  if (rank <= 7) return 'hm-4';
+  if (rank <= 10) return 'hm-8';
+  return 'hm-11';
+}
+
+function buildHeatmapSection(heatmap) {
+  if (!heatmap || !heatmap.grids) return '';
+  const keywordSections = heatmap.keywords.map(keyword => {
+    const grid = heatmap.grids[keyword];
+    const cells = grid.flat().map(rank => {
+      const cls = heatmapRankClass(rank);
+      const label = rank ? (rank > 20 ? '20+' : rank) : '—';
+      return `<div class="heatmap-cell ${cls}">${label}</div>`;
+    }).join('');
+    return `<div class="heatmap-keyword"><h3>${keyword}</h3><div class="heatmap-grid">${cells}</div></div>`;
+  }).join('');
+
+  return `
+    <div class="page">
+      <h2>Local Rank Heatmap</h2>
+      <p style="font-size:11px;color:#666;margin-bottom:16px">7×7 grid · 1km spacing · each cell = your rank if a customer searches from that spot.</p>
+      ${keywordSections}
+      <div class="heatmap-legend">
+        <span class="hm-legend-item hm-1" style="color:white">Rank 1–3</span>
+        <span class="hm-legend-item hm-4" style="color:#1a1a1a">Rank 4–7</span>
+        <span class="hm-legend-item hm-8" style="color:#1a1a1a">Rank 8–10</span>
+        <span class="hm-legend-item hm-11" style="color:white">Rank 11–20</span>
+        <span class="hm-legend-item hm-none" style="color:white">Not Found</span>
+      </div>
+    </div>`;
+}
+
+async function renderReport({ auditResult, clientProfile, competitors, baseline, heatmap }) {
   const { grade, color: gradeColor } = gradeFromScore(auditResult.scores.overall);
   const cssContent = fs.readFileSync(CSS_PATH, 'utf8');
   let html = fs.readFileSync(TEMPLATE_PATH, 'utf8');
@@ -196,6 +231,7 @@ async function renderReport({ auditResult, clientProfile, competitors, baseline 
   html = html.replace('<!--REVIEW_GAPS-->', buildReviewGaps(auditResult.gaps));
   html = html.replace('<!--GAP_TABLE_ROWS-->', buildGapTableRows(auditResult.gaps, competitorList));
   html = html.replace('<!--WEEKLY_TASKS-->', buildWeeklyTasks(auditResult.tasks));
+  html = html.replace('<!--HEATMAP_SECTION-->', buildHeatmapSection(heatmap));
   html = html.replace('<!--KEYWORD_ROWS-->', buildKeywordRows(auditResult.keywordSummary || [], baseline));
 
   return html;

@@ -312,11 +312,29 @@ async function generateReport() {
   }
 }
 
-function downloadPdf() {
-  if (!state.pdfData) return;
-  chrome.storage.local.set({ pendingReport: { base64: state.pdfData.base64 } }, () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('report/index.html') });
-  });
+async function downloadPdf() {
+  if (!state.auditResult) return;
+  const btn = document.getElementById('download-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  try {
+    const selectedCompetitors = state.competitors.filter(c => c.selected);
+    const pdfData = await sendToBackground('generatePdf', {
+      auditResult: state.auditResult,
+      clientProfile: state.clientProfile,
+      competitors: selectedCompetitors,
+      baseline: state.baseline,
+      heatmap: heatmapData || null,
+    });
+    chrome.storage.local.set({ pendingReport: { base64: pdfData.base64 } }, () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('report/index.html') });
+    });
+  } catch (err) {
+    showError(4, `Download failed: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = heatmapData ? 'Download PDF Report (with Heatmap)' : 'Download PDF Report';
+  }
 }
 
 // ─── Step 4: Heatmap ──────────────────────────────────────────────────────────
@@ -397,6 +415,7 @@ async function generateHeatmap() {
     heatmapTabs.style.display = 'block';
     btnHeatmap.disabled = false;
     renderHeatmapGrid(data.keywords[0]);
+    document.getElementById('download-btn').textContent = 'Download PDF Report (with Heatmap)';
   } catch (err) {
     heatmapLoading.style.display = 'none';
     heatmapError.style.display = 'block';

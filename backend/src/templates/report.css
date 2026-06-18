@@ -45,3 +45,13 @@ tr:nth-child(even) td { background: #f9fbfd; }
 .delta-up { color: #2e7d32; }
 .delta-down { color: #c62828; }
 .footer { text-align: center; color: #aaa; font-size: 9px; margin-top: 20px; }
+.heatmap-keyword { margin-bottom: 24px; }
+.heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; max-width: 400px; margin-bottom: 8px; }
+.heatmap-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 13px; font-weight: 700; color: white; min-height: 48px; }
+.hm-1 { background: #2e7d32; }
+.hm-4 { background: #8bc34a; color: #1a1a1a; }
+.hm-8 { background: #f9a825; color: #1a1a1a; }
+.hm-11 { background: #e65100; }
+.hm-none { background: #c62828; }
+.heatmap-legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.hm-legend-item { padding: 3px 10px; border-radius: 10px; font-size: 10px; font-weight: 600; }
