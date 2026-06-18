@@ -143,10 +143,11 @@ function renderCompetitorList() {
   state.competitors.forEach((comp, i) => {
     const div = document.createElement('div');
     div.className = 'competitor-item';
+    const name = comp.name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     div.innerHTML = `
-      <input type="checkbox" ${comp.selected ? 'checked' : ''} onchange="toggleCompetitor(${i})">
+      <input type="checkbox" data-index="${i}" ${comp.selected ? 'checked' : ''}>
       <div>
-        <div class="competitor-name">${comp.name}</div>
+        <div class="competitor-name">${name}</div>
         <div class="competitor-meta">
           ${comp.rating ? `★ ${comp.rating}` : ''}
           ${comp.reviewCount ? `· ${comp.reviewCount} reviews` : ''}
@@ -211,7 +212,7 @@ function renderKeywordChips() {
   state.keywords.forEach((kw, i) => {
     const chip = document.createElement('div');
     chip.className = 'chip';
-    chip.innerHTML = `<span>${kw}</span><button onclick="removeKeyword(${i})">×</button>`;
+    chip.innerHTML = `<span>${kw}</span><button data-index="${i}">×</button>`;
     container.appendChild(chip);
   });
 }
@@ -332,6 +333,35 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (state.step === 3) {
       renderStep4Summary();
       showStep(4);
+    }
+  });
+
+  document.getElementById('btn-back').addEventListener('click', goBack);
+  document.getElementById('btn-generate').addEventListener('click', generateReport);
+  document.getElementById('download-btn').addEventListener('click', downloadPdf);
+
+  document.getElementById('btn-add-competitor').addEventListener('click', addManualCompetitor);
+  document.getElementById('competitor-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addManualCompetitor();
+  });
+
+  document.getElementById('btn-add-keyword').addEventListener('click', addKeyword);
+  document.getElementById('keyword-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addKeyword();
+  });
+
+  // Event delegation for dynamic competitor checkboxes and keyword remove buttons
+  document.getElementById('competitor-list').addEventListener('change', e => {
+    if (e.target.type === 'checkbox') {
+      const index = parseInt(e.target.dataset.index);
+      if (!isNaN(index)) toggleCompetitor(index);
+    }
+  });
+
+  document.getElementById('keyword-chips').addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') {
+      const index = parseInt(e.target.dataset.index);
+      if (!isNaN(index)) removeKeyword(index);
     }
   });
 });

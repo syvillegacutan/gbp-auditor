@@ -48,10 +48,10 @@
     <div id="step2-error" class="error-box" style="display:none"></div>
     <div id="competitor-list"></div>
     <div class="field-row" style="margin-top:10px">
-      <label>Add competitor manually (name or Maps URL)</label>
+      <label>Add competitor (name or Maps URL)</label>
       <div class="keyword-input-row">
         <input type="text" id="competitor-input" placeholder="Competitor name or Maps URL">
-        <button onclick="addManualCompetitor()">Add</button>
+        <button id="btn-add-competitor">Add</button>
       </div>
     </div>
   </div>
@@ -64,7 +64,7 @@
     <div id="keyword-chips" class="chip-container"></div>
     <div class="keyword-input-row">
       <input type="text" id="keyword-input" placeholder="Add keyword">
-      <button onclick="addKeyword()">Add</button>
+      <button id="btn-add-keyword">Add</button>
     </div>
   </div>
 
@@ -79,15 +79,15 @@
     </div>
     <div id="step4-loading" class="loading" style="display:none"><div class="spinner"></div> <span id="step4-status">Analyzing profile...</span></div>
     <div id="step4-error" class="error-box" style="display:none"></div>
-    <button class="download-btn" id="download-btn" onclick="downloadPdf()">Download PDF Report</button>
+    <button class="download-btn" id="download-btn">Download PDF Report</button>
   </div>
 
 </div>
 
 <div class="footer">
-  <button class="secondary" id="btn-back" onclick="goBack()" style="display:none">Back</button>
+  <button class="secondary" id="btn-back" style="display:none">Back</button>
   <button class="primary" id="btn-next">Next</button>
-  <button class="primary" id="btn-generate" onclick="generateReport()" style="display:none">Generate PDF</button>
+  <button class="primary" id="btn-generate" style="display:none">Generate PDF</button>
 </div>
 
 <script src="popup.js"></script>
