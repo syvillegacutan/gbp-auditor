@@ -15,23 +15,29 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Rank each keyword sequentially to avoid parallel Puppeteer memory spikes
+    // Keyword ranking uses Puppeteer which may fail on hosted environments.
+    // Failures are non-fatal — keyword gets rank: null and analysis continues.
     const keywordRankings = [];
     for (const keyword of keywords) {
-      const result = await getRankForKeyword({
-        keyword,
-        lat: client.location.lat,
-        lng: client.location.lng,
-        businessName: client.name,
-      });
-      keywordRankings.push(result);
+      try {
+        const result = await getRankForKeyword({
+          keyword,
+          lat: client.location.lat,
+          lng: client.location.lng,
+          businessName: client.name,
+        });
+        keywordRankings.push(result);
+      } catch (rankErr) {
+        console.warn(`Keyword ranking failed for "${keyword}":`, rankErr.message);
+        keywordRankings.push({ keyword, rank: null, totalChecked: 0 });
+      }
     }
 
     const auditResult = await analyzeAudit({ client, competitors, keywordRankings });
     res.json(auditResult);
   } catch (err) {
-    console.error('analyze error:', err.message);
-    res.status(500).json({ error: 'Analysis failed' });
+    console.error('analyze error:', err.message, err.stack);
+    res.status(500).json({ error: err.message });
   }
 });
 
