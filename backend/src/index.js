@@ -11,7 +11,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/scrape/competitors', require('./routes/competitors'));
 app.use('/suggest-keywords', require('./routes/keywords'));
 app.use('/analyze', require('./routes/analyze'));
-// app.use('/pdf', require('./routes/pdf'));
+app.use('/pdf', require('./routes/pdf'));
 
 const PORT = process.env.PORT || 3000;
 if (require.main === module) {
