@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GBP Audit Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #f5f5f5; }
+    #print-bar {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: #1a73e8; padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 9999; color: white; font-family: sans-serif;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    #print-bar span { font-size: 14px; font-weight: 500; }
+    #save-btn {
+      background: white; color: #1a73e8; border: none;
+      padding: 8px 20px; border-radius: 4px;
+      font-weight: bold; cursor: pointer; font-size: 14px;
+    }
+    #save-btn:hover { background: #e8f0fe; }
+    #report-frame {
+      position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+      border: none; width: 100%; height: calc(100vh - 48px);
+    }
+    #loading {
+      position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: sans-serif; color: #666; font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="print-bar">
+    <span>GBP Audit Report — ready to save</span>
+    <button id="save-btn">⬇ Save as PDF</button>
+  </div>
+  <div id="loading">Loading report...</div>
+  <iframe id="report-frame" style="display:none"></iframe>
+  <script src="report.js"></script>
+</body>
+</html>

@@ -310,11 +310,9 @@ async function generateReport() {
 
 function downloadPdf() {
   if (!state.pdfData) return;
-  // Decode base64 → bytes → Blob (preserves UTF-8 characters like ✓/✗)
-  const bytes = Uint8Array.from(atob(state.pdfData.base64), c => c.charCodeAt(0));
-  const blob = new Blob([bytes], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  chrome.tabs.create({ url });
+  chrome.storage.local.set({ pendingReport: { base64: state.pdfData.base64 } }, () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('report/index.html') });
+  });
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
