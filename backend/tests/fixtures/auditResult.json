@@ -1,0 +1,35 @@
+{
+  "scores": { "overall": 42, "completeness": 50, "reviews": 30, "posts": 10, "competitorGap": 35 },
+  "issues": [
+    { "field": "description", "severity": "critical", "detail": "No business description set — competitors use descriptions to rank for keyword-rich searches" },
+    { "field": "photos", "severity": "critical", "detail": "6 photos vs Acme Roofing's 47 — photo count directly impacts click-through rate" },
+    { "field": "posts", "severity": "moderate", "detail": "0 posts in last 30 days vs Acme Roofing's 4 — weekly posts signal activity to Google" }
+  ],
+  "gaps": [
+    { "competitor": "Acme Roofing", "metric": "photos", "clientValue": 6, "competitorValue": 47, "delta": 41, "impact": "high" },
+    { "competitor": "Acme Roofing", "metric": "reviewCount", "clientValue": 18, "competitorValue": 120, "delta": 102, "impact": "high" },
+    { "competitor": "Acme Roofing", "metric": "responseRate", "clientValue": 0.2, "competitorValue": 0.9, "delta": 0.7, "impact": "high" }
+  ],
+  "tasks": {
+    "week1": [
+      { "task": "Write and publish a 200-word business description with target keywords", "why": "Improves completeness score and keyword relevance", "closesGap": "Acme Roofing - description" },
+      { "task": "Upload 10 high-quality job photos", "why": "Reduces 41-photo gap, improves click-through rate", "closesGap": "Acme Roofing - photos" },
+      { "task": "Respond to all 14 unanswered reviews", "why": "Raises response rate from 20% toward Acme's 90%", "closesGap": "Acme Roofing - responseRate" }
+    ],
+    "week2": [
+      { "task": "Publish 2 Google Posts about completed projects", "why": "Matches Acme's posting frequency", "closesGap": "Acme Roofing - posts" },
+      { "task": "Send review request to 5 recent customers", "why": "Begins closing 102-review gap", "closesGap": "Acme Roofing - reviewCount" }
+    ],
+    "week3": [
+      { "task": "Upload 10 more photos (before/after project shots)", "why": "Continues closing photo gap", "closesGap": "Acme Roofing - photos" },
+      { "task": "Add Q&A section with 5 common customer questions", "why": "Improves profile completeness", "closesGap": "Acme Roofing - completeness" }
+    ],
+    "week4": [
+      { "task": "Publish 2 more Google Posts", "why": "Establishes consistent posting cadence", "closesGap": "Acme Roofing - posts" },
+      { "task": "Send review requests to 10 more customers", "why": "Accelerates review velocity", "closesGap": "Acme Roofing - reviewCount" }
+    ]
+  },
+  "keywordSummary": [
+    { "keyword": "roofing company Houston", "clientRank": 14, "competitorRanks": [{ "name": "Acme Roofing", "rank": 2 }] }
+  ]
+}

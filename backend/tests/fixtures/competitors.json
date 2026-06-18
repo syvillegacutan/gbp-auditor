@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Acme Roofing",
+    "rating": 4.8,
+    "reviewCount": 120,
+    "category": "Roofing contractor",
+    "address": "123 Main St, Houston, TX",
+    "website": true,
+    "hoursSet": true,
+    "photoCount": 47,
+    "responseRate": 0.9,
+    "recentReviews30d": 8,
+    "postsLast30d": 4
+  }
+]

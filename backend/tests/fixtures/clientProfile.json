@@ -1,0 +1,16 @@
+{
+  "name": "Houston Roofing Pro",
+  "category": "Roofing contractor",
+  "address": "456 Oak Ave, Houston, TX 77001",
+  "location": { "lat": 29.7604, "lng": -95.3698 },
+  "rating": 4.2,
+  "reviewCount": 18,
+  "photoCount": 6,
+  "hoursSet": true,
+  "website": "https://houstonroofingpro.com",
+  "description": null,
+  "responseRate": 0.2,
+  "recentReviews30d": 1,
+  "recentReviews90d": 4,
+  "postsLast30d": 0
+}
