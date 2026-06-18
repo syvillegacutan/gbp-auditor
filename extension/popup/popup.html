@@ -44,8 +44,9 @@
   <!-- STEP 2: Competitors -->
   <div class="step" id="step-2">
     <h2>Competitors</h2>
-    <p style="font-size:12px;color:#666;margin-bottom:10px">Add the competitors you want to compare against. Type their business name and click Add.</p>
+    <div id="step2-loading" class="loading" style="display:none"><div class="spinner"></div> <span id="step2-status">Finding nearby competitors...</span></div>
     <div id="step2-error" class="error-box" style="display:none"></div>
+    <button id="btn-find-competitors" style="margin-bottom:10px">Auto-detect Competitors</button>
     <div id="competitor-list"></div>
     <div class="field-row" style="margin-top:10px">
       <label>Add competitor (name or Maps URL)</label>
@@ -79,7 +80,7 @@
     </div>
     <div id="step4-loading" class="loading" style="display:none"><div class="spinner"></div> <span id="step4-status">Analyzing profile...</span></div>
     <div id="step4-error" class="error-box" style="display:none"></div>
-    <button class="download-btn" id="download-btn">Download Report</button>
+    <button class="download-btn" id="download-btn">Download PDF Report</button>
   </div>
 
 </div>

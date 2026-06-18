@@ -310,11 +310,10 @@ async function generateReport() {
 
 function downloadPdf() {
   if (!state.pdfData) return;
-  const { base64, filename } = state.pdfData;
-  const link = document.createElement('a');
-  link.href = `data:text/html;base64,${base64}`;
-  link.download = filename;
-  link.click();
+  const html = atob(state.pdfData.base64);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  chrome.tabs.create({ url });
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
