@@ -114,10 +114,6 @@ async function initStep1() {
     populateStep1Form(profile);
     document.getElementById('step1-form').style.display = 'block';
     setLoading(1, false);
-    // Pre-fetch competitors in background
-    if (profile.category && profile.location?.lat) {
-      prefetchCompetitors(profile);
-    }
   } catch (err) {
     setLoading(1, false);
     showError(1, `Could not read page: ${err.message}. Make sure you are on a Google Maps business listing.`);
@@ -204,14 +200,7 @@ async function findCompetitors() {
 async function onEnterStep2() {
   hideError(2);
   document.getElementById('competitor-list').innerHTML = '';
-  if (prefetchedCompetitors && prefetchedCompetitors.length > 0) {
-    state.competitors = prefetchedCompetitors;
-    renderCompetitorList();
-    return;
-  }
-  // Show find button + auto-run it
-  document.getElementById('btn-find-competitors').style.display = 'inline-block';
-  await findCompetitors();
+  renderCompetitorList();
 }
 
 // ─── Step 3: Keywords ─────────────────────────────────────────────────────────
