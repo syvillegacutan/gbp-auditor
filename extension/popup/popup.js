@@ -304,6 +304,7 @@ async function generateReport() {
     setLoading(4, false);
     document.getElementById('btn-generate').disabled = false;
     document.getElementById('download-btn').classList.add('visible');
+    document.getElementById('heatmap-section').style.display = 'block';
   } catch (err) {
     setLoading(4, false);
     document.getElementById('btn-generate').disabled = false;
@@ -316,6 +317,92 @@ function downloadPdf() {
   chrome.storage.local.set({ pendingReport: { base64: state.pdfData.base64 } }, () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('report/index.html') });
   });
+}
+
+// ─── Step 4: Heatmap ──────────────────────────────────────────────────────────
+
+let heatmapData = null;
+let activeHeatmapKeyword = null;
+
+function rankClass(rank) {
+  if (!rank) return 'rank-none';
+  if (rank <= 3) return 'rank-1';
+  if (rank <= 7) return 'rank-4';
+  if (rank <= 10) return 'rank-8';
+  return 'rank-11';
+}
+
+function renderHeatmapGrid(keyword) {
+  activeHeatmapKeyword = keyword;
+  const grid = heatmapData.grids[keyword];
+  const size = heatmapData.gridSize;
+
+  // Update tabs
+  document.querySelectorAll('.heatmap-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.keyword === keyword);
+  });
+
+  // Render grid
+  const container = document.getElementById('heatmap-grid-container');
+  const div = document.createElement('div');
+  div.className = 'heatmap-grid';
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      const rank = grid[row][col];
+      const cell = document.createElement('div');
+      cell.className = `heatmap-cell ${rankClass(rank)}`;
+      cell.textContent = rank ? (rank > 20 ? '20+' : rank) : '—';
+      cell.title = rank ? `Rank #${rank}` : 'Not in top 20';
+      div.appendChild(cell);
+    }
+  }
+  container.innerHTML = '';
+  container.appendChild(div);
+}
+
+async function generateHeatmap() {
+  const heatmapLoading = document.getElementById('heatmap-loading');
+  const heatmapError = document.getElementById('heatmap-error');
+  const heatmapTabs = document.getElementById('heatmap-tabs');
+  const btnHeatmap = document.getElementById('btn-heatmap');
+
+  heatmapLoading.style.display = 'flex';
+  heatmapError.style.display = 'none';
+  heatmapTabs.style.display = 'none';
+  btnHeatmap.disabled = true;
+
+  try {
+    const { name, location } = state.clientProfile;
+    const data = await sendToBackground('generateHeatmap', {
+      businessName: name,
+      lat: location.lat,
+      lng: location.lng,
+      keywords: state.keywords,
+    });
+    heatmapData = data;
+
+    // Build keyword tabs
+    const tabsEl = document.getElementById('heatmap-keyword-tabs');
+    tabsEl.innerHTML = '';
+    data.keywords.forEach(kw => {
+      const btn = document.createElement('button');
+      btn.className = 'heatmap-tab';
+      btn.textContent = kw;
+      btn.dataset.keyword = kw;
+      btn.addEventListener('click', () => renderHeatmapGrid(kw));
+      tabsEl.appendChild(btn);
+    });
+
+    heatmapLoading.style.display = 'none';
+    heatmapTabs.style.display = 'block';
+    btnHeatmap.disabled = false;
+    renderHeatmapGrid(data.keywords[0]);
+  } catch (err) {
+    heatmapLoading.style.display = 'none';
+    heatmapError.style.display = 'block';
+    heatmapError.textContent = `Heatmap failed: ${err.message}`;
+    btnHeatmap.disabled = false;
+  }
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -342,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('download-btn').addEventListener('click', downloadPdf);
 
   document.getElementById('btn-find-competitors').addEventListener('click', findCompetitors);
+  document.getElementById('btn-heatmap').addEventListener('click', generateHeatmap);
   document.getElementById('btn-add-competitor').addEventListener('click', addManualCompetitor);
   document.getElementById('competitor-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') addManualCompetitor();

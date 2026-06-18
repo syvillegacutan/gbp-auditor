@@ -63,6 +63,11 @@ async function handleMessage(message) {
       return { base64: html, filename };
     }
 
+    case 'generateHeatmap': {
+      const res = await apiPost('/heatmap', payload);
+      return res.json();
+    }
+
     case 'getBaseline': {
       const { key } = payload;
       return new Promise(resolve => {
