@@ -200,8 +200,11 @@ async function findCompetitors() {
 
 async function onEnterStep2() {
   hideError(2);
-  document.getElementById('competitor-list').innerHTML = '';
-  renderCompetitorList();
+  if (state.competitors.length === 0) {
+    await findCompetitors();
+  } else {
+    renderCompetitorList();
+  }
 }
 
 // ─── Step 3: Keywords ─────────────────────────────────────────────────────────
