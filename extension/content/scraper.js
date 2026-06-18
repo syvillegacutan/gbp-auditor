@@ -28,7 +28,6 @@ function extractReviewStats() {
   const responded = responseEls.length;
   const responseRate = total > 0 ? Math.round((responded / total) * 100) / 100 : null;
 
-  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
   let recentCount = 0;
   reviewEls.forEach(el => {
     const dateText = el.querySelector('.rsqaWe')?.textContent || '';
