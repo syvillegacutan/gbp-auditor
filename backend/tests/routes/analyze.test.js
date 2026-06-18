@@ -1,7 +1,6 @@
 const request = require('supertest');
 const clientProfile = require('../fixtures/clientProfile.json');
 const competitors = require('../fixtures/competitors.json');
-const auditResult = require('../fixtures/auditResult.json');
 
 jest.mock('../../src/services/keywordRanker', () => ({
   getRankForKeyword: jest.fn().mockResolvedValue({ keyword: 'roofing Houston', rank: 5, totalChecked: 20 }),

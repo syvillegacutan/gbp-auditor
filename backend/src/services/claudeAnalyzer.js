@@ -1,8 +1,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
-const anthropic = new Anthropic();
-
 async function analyzeAudit({ client, competitors, keywordRankings }) {
+  const anthropic = new Anthropic();
   const prompt = `You are a local SEO expert. Analyze this Google Business Profile audit and return a structured JSON report.
 
 CLIENT PROFILE:
@@ -53,9 +52,15 @@ Rules:
   });
 
   const text = response.content.find(b => b.type === 'text')?.text || '';
-  const match = text.match(/\{[\s\S]*\}/);
+  const stripped = text.replace(/```json?\n?/g, '').replace(/```/g, '').trim();
+  const match = stripped.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('Claude did not return valid JSON');
-  return JSON.parse(match[0]);
+  const json = match[0];
+  try {
+    return JSON.parse(json);
+  } catch {
+    throw new Error('Claude returned unparseable JSON: ' + json?.slice(0, 100));
+  }
 }
 
 module.exports = { analyzeAudit };

@@ -1,6 +1,5 @@
 const clientProfile = require('../fixtures/clientProfile.json');
 const competitors = require('../fixtures/competitors.json');
-const expectedResult = require('../fixtures/auditResult.json');
 
 jest.mock('@anthropic-ai/sdk', () => {
   const mockAuditResult = require('../fixtures/auditResult.json');

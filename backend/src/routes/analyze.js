@@ -6,8 +6,12 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
   const { client, competitors, keywords } = req.body;
-  if (!client || !competitors || !keywords) {
+  if (!client || !competitors || !keywords || !Array.isArray(keywords)) {
     return res.status(400).json({ error: 'client, competitors, and keywords are required' });
+  }
+
+  if (!client.location?.lat || !client.location?.lng) {
+    return res.status(400).json({ error: 'client.location.lat and client.location.lng are required' });
   }
 
   try {
