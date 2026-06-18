@@ -45,12 +45,6 @@ function goBack() {
   if (state.step > 1) showStep(state.step - 1);
 }
 
-function goNext() {
-  if (state.step === 1 && !validateStep1()) return;
-  if (state.step === 2) onEnterStep3();
-  if (state.step < 4) showStep(state.step + 1);
-}
-
 function showError(stepN, message) {
   const el = document.getElementById(`step${stepN}-error`);
   el.textContent = message;
@@ -208,20 +202,135 @@ async function onEnterStep2() {
   }
 }
 
-// Wire step 2 entry
-const _origGoNext = goNext;
-// (step navigation handled in goNext above — onEnterStep3 is called there)
+// ─── Step 3: Keywords ─────────────────────────────────────────────────────────
+
+function renderKeywordChips() {
+  const container = document.getElementById('keyword-chips');
+  container.innerHTML = '';
+  state.keywords.forEach((kw, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.innerHTML = `<span>${kw}</span><button onclick="removeKeyword(${i})">×</button>`;
+    container.appendChild(chip);
+  });
+}
+
+function addKeyword() {
+  const input = document.getElementById('keyword-input');
+  const val = input.value.trim();
+  if (val && !state.keywords.includes(val)) {
+    state.keywords.push(val);
+    renderKeywordChips();
+  }
+  input.value = '';
+}
+
+function removeKeyword(index) {
+  state.keywords.splice(index, 1);
+  renderKeywordChips();
+}
+
+async function onEnterStep3() {
+  if (state.keywords.length > 0) return; // already loaded
+  setLoading(3, true);
+  hideError(3);
+  try {
+    const { name, category, address } = state.clientProfile;
+    const location = address || '';
+    const keywords = await sendToBackground('suggestKeywords', {
+      businessName: name,
+      category,
+      location,
+    });
+    state.keywords = keywords;
+    renderKeywordChips();
+    setLoading(3, false);
+  } catch (err) {
+    setLoading(3, false);
+    showError(3, `Could not suggest keywords: ${err.message}`);
+  }
+}
+
+// ─── Step 4: Generate ─────────────────────────────────────────────────────────
+
+function renderStep4Summary() {
+  const selected = state.competitors.filter(c => c.selected);
+  const container = document.getElementById('step4-summary');
+  container.innerHTML = `
+    <div class="summary-row"><span class="summary-label">Client</span><span>${state.clientProfile.name}</span></div>
+    <div class="summary-row"><span class="summary-label">Competitors</span><span>${selected.length} selected</span></div>
+    <div class="summary-row"><span class="summary-label">Keywords</span><span>${state.keywords.length} keywords</span></div>
+    ${state.baseline ? `<div class="summary-row"><span class="summary-label">Baseline</span><span>Found — delta comparison will be included</span></div>` : ''}
+  `;
+}
+
+async function generateReport() {
+  hideError(4);
+  setLoading(4, true, 'Running keyword ranking checks...');
+  document.getElementById('btn-generate').disabled = true;
+  document.getElementById('download-btn').classList.remove('visible');
+
+  try {
+    const selectedCompetitors = state.competitors.filter(c => c.selected);
+
+    setLoading(4, true, 'Analyzing profile against competitors...');
+    const auditResult = await sendToBackground('analyze', {
+      client: state.clientProfile,
+      competitors: selectedCompetitors,
+      keywords: state.keywords,
+    });
+    state.auditResult = auditResult;
+
+    setLoading(4, true, 'Generating PDF report...');
+    const pdfData = await sendToBackground('generatePdf', {
+      auditResult,
+      clientProfile: state.clientProfile,
+      competitors: selectedCompetitors,
+      baseline: state.baseline,
+    });
+    state.pdfData = pdfData;
+
+    // Save this result as the new baseline
+    await sendToBackground('saveBaseline', {
+      key: state.clientProfile.baselineKey,
+      data: { ...auditResult, reportDate: new Date().toLocaleDateString() },
+    });
+
+    setLoading(4, false);
+    document.getElementById('btn-generate').disabled = false;
+    document.getElementById('download-btn').classList.add('visible');
+  } catch (err) {
+    setLoading(4, false);
+    document.getElementById('btn-generate').disabled = false;
+    showError(4, `Report generation failed: ${err.message}`);
+  }
+}
+
+function downloadPdf() {
+  if (!state.pdfData) return;
+  const { base64, filename } = state.pdfData;
+  const link = document.createElement('a');
+  link.href = `data:application/pdf;base64,${base64}`;
+  link.download = filename;
+  link.click();
+}
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   showStep(1);
   initStep1();
-  // Step 2 loads when Next is clicked from step 1
+
   document.getElementById('btn-next').addEventListener('click', async () => {
     if (state.step === 1 && validateStep1()) {
       await onEnterStep2();
       showStep(2);
+    } else if (state.step === 2) {
+      await onEnterStep3();
+      showStep(3);
+    } else if (state.step === 3) {
+      renderStep4Summary();
+      showStep(4);
     }
-  }, { capture: true }); // capture before goNext
+  });
 });
