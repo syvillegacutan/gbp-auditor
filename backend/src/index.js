@@ -9,7 +9,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Routes wired in later tasks
 app.use('/scrape/competitors', require('./routes/competitors'));
-// app.use('/suggest-keywords', require('./routes/keywords'));
+app.use('/suggest-keywords', require('./routes/keywords'));
 // app.use('/analyze', require('./routes/analyze'));
 // app.use('/pdf', require('./routes/pdf'));
 
