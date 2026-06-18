@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'client, competitors, and keywords are required' });
   }
 
-  if (!client.location?.lat || !client.location?.lng) {
+  if (client.location?.lat == null || client.location?.lng == null) {
     return res.status(400).json({ error: 'client.location.lat and client.location.lng are required' });
   }
 

@@ -1,8 +1,7 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
-const client = new Anthropic();
-
 async function suggestKeywords({ businessName, category, location }) {
+  const client = new Anthropic();
   const response = await client.messages.create({
     model: 'claude-opus-4-8',
     max_tokens: 400,
