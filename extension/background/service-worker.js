@@ -59,12 +59,8 @@ async function handleMessage(message) {
 
     case 'generatePdf': {
       const res = await apiPost('/pdf', payload);
-      const buffer = await res.arrayBuffer();
-      // Convert to base64 to pass through message channel
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      bytes.forEach(b => (binary += String.fromCharCode(b)));
-      return { base64: btoa(binary), filename: `gbp-audit-${payload.clientProfile.name.replace(/\s+/g, '-')}.pdf` };
+      const { html, filename } = await res.json();
+      return { base64: html, filename };
     }
 
     case 'getBaseline': {

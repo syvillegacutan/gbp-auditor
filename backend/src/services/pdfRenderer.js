@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
 
@@ -147,7 +146,7 @@ function buildReviewGaps(gaps) {
     </div>`).join('');
 }
 
-async function renderPdf({ auditResult, clientProfile, competitors, baseline }) {
+async function renderReport({ auditResult, clientProfile, competitors, baseline }) {
   const { grade, color: gradeColor } = gradeFromScore(auditResult.scores.overall);
   const cssContent = fs.readFileSync(CSS_PATH, 'utf8');
   let html = fs.readFileSync(TEMPLATE_PATH, 'utf8');
@@ -199,21 +198,7 @@ async function renderPdf({ auditResult, clientProfile, competitors, baseline }) 
   html = html.replace('<!--WEEKLY_TASKS-->', buildWeeklyTasks(auditResult.tasks));
   html = html.replace('<!--KEYWORD_ROWS-->', buildKeywordRows(auditResult.keywordSummary || [], baseline));
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
-
-  try {
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({ format: 'A4', printBackground: true });
-    await page.close();
-    return pdf;
-  } finally {
-    await browser.close();
-  }
+  return html;
 }
 
-module.exports = { renderPdf };
+module.exports = { renderReport };

@@ -1,5 +1,5 @@
 const express = require('express');
-const { renderPdf } = require('../services/pdfRenderer');
+const { renderReport } = require('../services/pdfRenderer');
 
 const router = express.Router();
 
@@ -10,14 +10,12 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const pdf = await renderPdf({ auditResult, clientProfile, competitors, baseline: baseline || null });
-    const filename = `gbp-audit-${clientProfile.name.replace(/\s+/g, '-')}.pdf`;
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(pdf);
+    const html = await renderReport({ auditResult, clientProfile, competitors, baseline: baseline || null });
+    const filename = `gbp-audit-${clientProfile.name.replace(/\s+/g, '-')}.html`;
+    res.json({ html: Buffer.from(html).toString('base64'), filename });
   } catch (err) {
-    console.error('pdf render error:', err.message);
-    res.status(500).json({ error: 'PDF generation failed' });
+    console.error('report render error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
