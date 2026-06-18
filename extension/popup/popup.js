@@ -137,7 +137,7 @@ async function prefetchCompetitors(profile) {
     });
     prefetchedCompetitors = competitors.map(c => ({ ...c, selected: true, manual: false }));
   } catch (_) {
-    prefetchedCompetitors = [];
+    prefetchedCompetitors = null; // null = failed; [] = succeeded but empty
   }
 }
 
@@ -175,16 +175,11 @@ function addManualCompetitor() {
   input.value = '';
 }
 
-async function onEnterStep2() {
+async function findCompetitors() {
   setLoading(2, true);
+  hideError(2);
   document.getElementById('competitor-list').innerHTML = '';
-  if (prefetchedCompetitors) {
-    state.competitors = prefetchedCompetitors;
-    setLoading(2, false);
-    renderCompetitorList();
-    return;
-  }
-  // Wasn't prefetched yet — fetch now
+  document.getElementById('btn-find-competitors').style.display = 'none';
   try {
     const { category, location } = state.clientProfile;
     const competitors = await sendToBackground('scrapeCompetitors', {
@@ -195,11 +190,28 @@ async function onEnterStep2() {
     state.competitors = competitors.map(c => ({ ...c, selected: true, manual: false }));
     setLoading(2, false);
     renderCompetitorList();
+    if (competitors.length === 0) {
+      showError(2, 'No nearby competitors found automatically. Add them manually below.');
+    }
   } catch (err) {
     setLoading(2, false);
-    showError(2, `Could not fetch competitors: ${err.message}`);
+    document.getElementById('btn-find-competitors').style.display = 'inline-block';
+    showError(2, `Auto-detection failed: ${err.message}. Add competitors manually below.`);
     state.competitors = [];
   }
+}
+
+async function onEnterStep2() {
+  hideError(2);
+  document.getElementById('competitor-list').innerHTML = '';
+  if (prefetchedCompetitors && prefetchedCompetitors.length > 0) {
+    state.competitors = prefetchedCompetitors;
+    renderCompetitorList();
+    return;
+  }
+  // Show find button + auto-run it
+  document.getElementById('btn-find-competitors').style.display = 'inline-block';
+  await findCompetitors();
 }
 
 // ─── Step 3: Keywords ─────────────────────────────────────────────────────────
