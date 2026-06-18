@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<div class="header">
+  <h1>GBP Auditor</h1>
+  <div class="subtitle">Google Business Profile Audit Tool</div>
+</div>
+
+<div class="steps">
+  <div class="step-dot active" id="dot-1"></div>
+  <div class="step-label active" id="label-1">Profile</div>
+  <div class="step-dot" id="dot-2"></div>
+  <div class="step-label" id="label-2">Competitors</div>
+  <div class="step-dot" id="dot-3"></div>
+  <div class="step-label" id="label-3">Keywords</div>
+  <div class="step-dot" id="dot-4"></div>
+  <div class="step-label" id="label-4">Generate</div>
+</div>
+
+<div class="content">
+
+  <!-- STEP 1: Client Profile -->
+  <div class="step visible" id="step-1">
+    <h2>Client Profile</h2>
+    <div id="step1-loading" class="loading"><div class="spinner"></div> Reading page...</div>
+    <div id="step1-error" class="error-box" style="display:none"></div>
+    <div id="step1-form" style="display:none">
+      <div class="field-row"><label>Business Name</label><input type="text" id="field-name"></div>
+      <div class="field-row"><label>Category</label><input type="text" id="field-category"></div>
+      <div class="field-row"><label>Address</label><input type="text" id="field-address"></div>
+      <div class="field-row"><label>Rating</label><input type="text" id="field-rating"></div>
+      <div class="field-row"><label>Review Count</label><input type="text" id="field-reviewCount"></div>
+      <div class="field-row"><label>Photo Count</label><input type="text" id="field-photoCount"></div>
+      <div class="field-row"><label>Website</label><input type="text" id="field-website"></div>
+      <div class="field-row"><label>Description</label><input type="text" id="field-description" placeholder="Not set"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Competitors -->
+  <div class="step" id="step-2">
+    <h2>Competitors</h2>
+    <div id="step2-loading" class="loading" style="display:none"><div class="spinner"></div> Finding nearby competitors...</div>
+    <div id="step2-error" class="error-box" style="display:none"></div>
+    <div id="competitor-list"></div>
+    <div class="field-row" style="margin-top:10px">
+      <label>Add competitor manually (name or Maps URL)</label>
+      <div class="keyword-input-row">
+        <input type="text" id="competitor-input" placeholder="Competitor name or Maps URL">
+        <button onclick="addManualCompetitor()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Keywords -->
+  <div class="step" id="step-3">
+    <h2>Target Keywords</h2>
+    <div id="step3-loading" class="loading" style="display:none"><div class="spinner"></div> Suggesting keywords...</div>
+    <div id="step3-error" class="error-box" style="display:none"></div>
+    <div id="keyword-chips" class="chip-container"></div>
+    <div class="keyword-input-row">
+      <input type="text" id="keyword-input" placeholder="Add keyword">
+      <button onclick="addKeyword()">Add</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Generate -->
+  <div class="step" id="step-4">
+    <h2>Generate Report</h2>
+    <div id="step4-summary"></div>
+    <div class="heatmap-toggle">
+      <span>Heatmap</span>
+      <span class="badge-soon">Coming Soon</span>
+      <span style="margin-left:auto;font-size:11px">Grid ranking — Phase 2</span>
+    </div>
+    <div id="step4-loading" class="loading" style="display:none"><div class="spinner"></div> <span id="step4-status">Analyzing profile...</span></div>
+    <div id="step4-error" class="error-box" style="display:none"></div>
+    <button class="download-btn" id="download-btn" onclick="downloadPdf()">Download PDF Report</button>
+  </div>
+
+</div>
+
+<div class="footer">
+  <button class="secondary" id="btn-back" onclick="goBack()" style="display:none">Back</button>
+  <button class="primary" id="btn-next" onclick="goNext()">Next</button>
+  <button class="primary" id="btn-generate" onclick="generateReport()" style="display:none">Generate PDF</button>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
