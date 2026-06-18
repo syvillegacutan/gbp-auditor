@@ -3,22 +3,72 @@ const SEL = {
   name: 'h1.DUwDvf',
   category: 'button.DkEaL',
   rating: '.F7nice span[aria-hidden="true"]',
-  reviewCount: 'button[jsaction*="pane.rating"]',
   address: 'button[data-item-id="address"] .Io6YTe',
   website: 'a[data-item-id="authority"]',
   phone: '[data-item-id^="phone:tel:"] .Io6YTe',
   hours: '.t39EBf',
-  description: '.PYvSYb',
-  photoCountBtn: '[aria-label*="photo"]',
   reviews: '.jftiEf .jJc9Ad',
   ownerResponse: '.CDe7pd',
   posts: '.hqbdD',
 };
 
+// Try multiple selectors in order, return first match
+function queryFirst(...selectors) {
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
+    if (el) return el;
+  }
+  return null;
+}
+
 function extractLatLng() {
   const match = window.location.href.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
   if (!match) return { lat: null, lng: null };
   return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+}
+
+function extractReviewCount() {
+  // Try aria-label first: "1,234 reviews" or "1,234 Rezensionen" etc.
+  const byAria = document.querySelector('button[aria-label*="review"], [aria-label*="reviews"], button[aria-label*="Review"]');
+  if (byAria) {
+    const m = byAria.getAttribute('aria-label').match(/[\d,]+/);
+    if (m) return parseInt(m[0].replace(/,/g, ''));
+  }
+  // Fallback: button near rating with jsaction
+  const byAction = document.querySelector('button[jsaction*="pane.rating"]');
+  if (byAction) return parseInt(byAction.textContent.replace(/[^\d]/g, '')) || 0;
+  // Fallback: span containing review count text near rating
+  const spans = document.querySelectorAll('.F7nice span, .HHrUdb');
+  for (const s of spans) {
+    const n = parseInt(s.textContent.replace(/[^\d]/g, ''));
+    if (n > 0) return n;
+  }
+  return 0;
+}
+
+function extractPhotoCount() {
+  // Google Maps photo button: aria-label like "1,234 photos of Business" or "See 1,234 photos"
+  const candidates = document.querySelectorAll(
+    'button[aria-label*="photo"], button[aria-label*="Photo"], [aria-label*="photos"]'
+  );
+  for (const el of candidates) {
+    const label = el.getAttribute('aria-label') || '';
+    const m = label.match(/[\d,]+/);
+    if (m) return parseInt(m[0].replace(/,/g, ''));
+  }
+  return 0;
+}
+
+function extractDescription() {
+  // Try multiple known class names for the about/description section
+  const el = queryFirst(
+    '.PYvSYb',       // common 2024-2026
+    '.MyEned',       // alternate
+    '[data-attrid*="description"] span',
+    '.LbsC7b',
+    '.iP2t7d'
+  );
+  return el?.textContent?.trim() || null;
 }
 
 function extractReviewStats() {
@@ -46,15 +96,11 @@ function scrapeProfile() {
   const phone = document.querySelector(SEL.phone)?.textContent?.trim() || null;
   const rating = parseFloat(document.querySelector(SEL.rating)?.textContent) || null;
   const hoursSet = !!document.querySelector(SEL.hours);
-  const description = document.querySelector(SEL.description)?.textContent?.trim() || null;
   const postsLast30d = document.querySelectorAll(SEL.posts).length;
 
-  const reviewCountText = document.querySelector(SEL.reviewCount)?.textContent || '';
-  const reviewCount = parseInt(reviewCountText.replace(/[^\d]/g, '')) || 0;
-
-  const photoText = document.querySelector(SEL.photoCountBtn)?.getAttribute('aria-label') || '';
-  const photoMatch = photoText.match(/(\d[\d,]*)/);
-  const photoCount = photoMatch ? parseInt(photoMatch[1].replace(/,/g, '')) : 0;
+  const reviewCount = extractReviewCount();
+  const photoCount = extractPhotoCount();
+  const description = extractDescription();
 
   const { lat, lng } = extractLatLng();
   const { responseRate, recentReviews30d } = extractReviewStats();
