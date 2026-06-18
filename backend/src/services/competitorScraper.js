@@ -1,43 +1,29 @@
-const puppeteer = require('puppeteer');
-
 async function scrapeCompetitors({ category, lat, lng }) {
-  const query = encodeURIComponent(category);
-  const url = `https://www.google.com/maps/search/${query}/@${lat},${lng},14z`;
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) throw new Error('GOOGLE_PLACES_API_KEY is not set');
 
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  const url = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json');
+  url.searchParams.set('location', `${lat},${lng}`);
+  url.searchParams.set('radius', '2000');
+  url.searchParams.set('keyword', category);
+  url.searchParams.set('key', apiKey);
 
-  try {
-    const page = await browser.newPage();
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    );
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-    await page.waitForSelector('[role="feed"] .Nv2PK', { timeout: 15000 });
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`Places API HTTP ${res.status}`);
 
-    const competitors = await page.evaluate(() => {
-      // Selectors target Google Maps as of mid-2026 — update if Maps changes DOM
-      const cards = [...document.querySelectorAll('[role="feed"] .Nv2PK')].slice(0, 5);
-      return cards.map(card => ({
-        name: card.querySelector('.qBF1Pd')?.textContent?.trim() || null,
-        rating: parseFloat(card.querySelector('.MW4etd')?.textContent) || null,
-        reviewCount: parseInt(
-          (card.querySelector('.UY7F9')?.textContent || '0').replace(/[^\d]/g, '')
-        ) || 0,
-        category: card.querySelector('.W4Efsd span')?.textContent?.trim() || null,
-        address: card.querySelector('.W4Efsd:last-child span')?.textContent?.trim() || null,
-        website: !!card.querySelector('[aria-label*="website"]'),
-        hoursSet: !!card.querySelector('[aria-label*="hour"]'),
-      }));
-    });
-
-    return competitors.filter(c => c.name);
-  } finally {
-    await browser.close();
+  const data = await res.json();
+  if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+    throw new Error(`Places API error: ${data.status} — ${data.error_message || ''}`);
   }
+
+  return (data.results || []).slice(0, 5).map(place => ({
+    name: place.name,
+    rating: place.rating || null,
+    reviewCount: place.user_ratings_total || 0,
+    address: place.vicinity || null,
+    website: false,
+    hoursSet: !!place.opening_hours,
+  }));
 }
 
 module.exports = { scrapeCompetitors };

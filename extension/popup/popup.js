@@ -349,6 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-generate').addEventListener('click', generateReport);
   document.getElementById('download-btn').addEventListener('click', downloadPdf);
 
+  document.getElementById('btn-find-competitors').addEventListener('click', findCompetitors);
   document.getElementById('btn-add-competitor').addEventListener('click', addManualCompetitor);
   document.getElementById('competitor-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') addManualCompetitor();

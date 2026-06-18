@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     res.json({ competitors });
   } catch (err) {
     console.error('competitorScraper error:', err.message);
-    res.status(500).json({ error: 'Failed to scrape competitors' });
+    res.status(500).json({ error: err.message });
   }
 });
 
