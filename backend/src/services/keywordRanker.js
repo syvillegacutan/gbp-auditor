@@ -6,6 +6,7 @@ async function getRankForKeyword({ keyword, lat, lng, businessName }) {
 
   const browser = await puppeteer.launch({
     headless: 'new',
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
