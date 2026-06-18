@@ -47,28 +47,39 @@ function extractReviewCount() {
 }
 
 function extractPhotoCount() {
-  // Google Maps photo button: aria-label like "1,234 photos of Business" or "See 1,234 photos"
-  const candidates = document.querySelectorAll(
-    'button[aria-label*="photo"], button[aria-label*="Photo"], [aria-label*="photos"]'
-  );
-  for (const el of candidates) {
+  // Look for elements whose aria-label matches "N photos of …" or "See N photos"
+  // Exclude thumbnail buttons like "Photo 1 of N" (where the number comes after "Photo ")
+  const all = document.querySelectorAll('[aria-label]');
+  for (const el of all) {
     const label = el.getAttribute('aria-label') || '';
-    const m = label.match(/[\d,]+/);
-    if (m) return parseInt(m[0].replace(/,/g, ''));
+    // Must have a number followed by "photo" — excludes "Photo 1 of N" patterns
+    if (/^\d[\d,]*\s+photo/i.test(label) || /see\s+\d[\d,]*\s+photo/i.test(label)) {
+      const m = label.match(/[\d,]+/);
+      if (m) return parseInt(m[0].replace(/,/g, ''));
+    }
   }
   return 0;
 }
 
 function extractDescription() {
-  // Try multiple known class names for the about/description section
-  const el = queryFirst(
-    '.PYvSYb',       // common 2024-2026
-    '.MyEned',       // alternate
-    '[data-attrid*="description"] span',
-    '.LbsC7b',
-    '.iP2t7d'
-  );
-  return el?.textContent?.trim() || null;
+  // The "From the business" description lives in the About section.
+  // Exclude review snippets by checking parent context.
+  const candidates = document.querySelectorAll('.PYvSYb, .MyEned, .iP2t7d');
+  for (const el of candidates) {
+    // Skip if this element is inside a review container
+    if (el.closest('.jftiEf, .MyEned[class*="review"], [data-review-id]')) continue;
+    const text = el.textContent?.trim();
+    if (text && text.length > 10) return text;
+  }
+  // Fallback: look for "From the business" section header then grab sibling text
+  const headers = document.querySelectorAll('h2, h3, .iL3Qke');
+  for (const h of headers) {
+    if (/from the business|about|description/i.test(h.textContent)) {
+      const sibling = h.nextElementSibling;
+      if (sibling) return sibling.textContent?.trim() || null;
+    }
+  }
+  return null;
 }
 
 function extractReviewStats() {
