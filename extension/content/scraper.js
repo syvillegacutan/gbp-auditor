@@ -47,14 +47,20 @@ function extractReviewCount() {
 }
 
 function extractPhotoCount() {
-  // Look for elements whose aria-label matches "N photos of …" or "See N photos"
-  // Exclude thumbnail buttons like "Photo 1 of N" (where the number comes after "Photo ")
-  const all = document.querySelectorAll('[aria-label]');
+  // Google Maps uses aria-label="Photos of <BusinessName>" on the main photos button.
+  // The count is in the button's text content, not the aria-label.
+  const photosBtn = document.querySelector('[aria-label^="Photos of"]');
+  if (photosBtn) {
+    const text = photosBtn.textContent || '';
+    const m = text.match(/[\d,]+/);
+    if (m) return parseInt(m[0].replace(/,/g, ''));
+  }
+  // Fallback: any element whose text contains a number followed by "photo"
+  const all = document.querySelectorAll('button, span, div');
   for (const el of all) {
-    const label = el.getAttribute('aria-label') || '';
-    // Must have a number followed by "photo" — excludes "Photo 1 of N" patterns
-    if (/^\d[\d,]*\s+photo/i.test(label) || /see\s+\d[\d,]*\s+photo/i.test(label)) {
-      const m = label.match(/[\d,]+/);
+    const text = el.textContent?.trim() || '';
+    if (/^\d[\d,]*\s+photos?$/i.test(text)) {
+      const m = text.match(/[\d,]+/);
       if (m) return parseInt(m[0].replace(/,/g, ''));
     }
   }
