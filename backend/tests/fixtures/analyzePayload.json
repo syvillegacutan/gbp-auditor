@@ -1,0 +1,46 @@
+{
+  "client": {
+    "name": "Houston Roofing Pro",
+    "category": "Roofing contractor",
+    "address": "456 Oak Ave, Houston, TX 77001",
+    "location": {
+      "lat": 29.7604,
+      "lng": -95.3698
+    },
+    "rating": 4.2,
+    "reviewCount": 18,
+    "photoCount": 6,
+    "hoursSet": true,
+    "website": "https://houstonroofingpro.com",
+    "description": null,
+    "responseRate": 0.2,
+    "recentReviews30d": 1,
+    "recentReviews90d": 4,
+    "postsLast30d": 0
+  },
+  "competitors": [
+    {
+      "name": "Acme Roofing",
+      "rating": 4.8,
+      "reviewCount": 120,
+      "category": "Roofing contractor",
+      "address": "123 Main St, Houston, TX",
+      "website": true,
+      "hoursSet": true,
+      "photoCount": 47,
+      "responseRate": 0.9,
+      "recentReviews30d": 8,
+      "postsLast30d": 4
+    }
+  ],
+  "keywords": [
+    "roofing company Houston",
+    "roof repair Houston TX",
+    "emergency roof repair Houston",
+    "residential roofing Houston",
+    "roof inspection Houston",
+    "roofing contractor near me",
+    "best roofers Houston",
+    "local roofing services Houston"
+  ]
+}
